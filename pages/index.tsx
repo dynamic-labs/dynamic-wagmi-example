@@ -1,17 +1,33 @@
-import { DynamicWidget } from '@dynamic-labs/sdk-react';
-import { useAccount, useBalance, useNetwork, useSwitchNetwork } from 'wagmi';
-import styles from '../styles/Home.module.css';
+import { DynamicWidget } from "@dynamic-labs/sdk-react";
+import { useAccount, useBalance, useNetwork, useSwitchNetwork } from "wagmi";
+import styles from "../styles/Home.module.css";
+import { useState, useEffect, ReactNode } from "react";
 
 export default function Home() {
   return (
     <div className={styles.container}>
       <main className={styles.main}>
         <DynamicWidget />
-        <WagmiComponents />
+        <IsBrowser>
+          <WagmiComponents />
+        </IsBrowser>
       </main>
     </div>
   );
 }
+
+const IsBrowser = ({ children }: { children: ReactNode }) => {
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    if (!isMounted) {
+      setIsMounted(true);
+    }
+  }, [isMounted]);
+
+  if (!isMounted) return null;
+
+  return <>{children}</>;
+};
 
 const WagmiComponents = () => {
   const { address, isConnected } = useAccount();
@@ -20,11 +36,11 @@ const WagmiComponents = () => {
   return (
     <div>
       <h2>useAccount & useNetwork</h2>
-      <p data-cy='wagmi-connected'>
-        wagmi connected: {isConnected ? 'true' : 'false'}
+      <p data-cy="wagmi-connected">
+        wagmi connected: {isConnected ? "true" : "false"}
       </p>
-      <p data-cy='wagmi-address'>wagmi address: {address}</p>
-      <p data-cy='wagmi-network'>wagmi network: {chain?.id}</p>
+      <p data-cy="wagmi-address">wagmi address: {address}</p>
+      <p data-cy="wagmi-network">wagmi network: {chain?.id}</p>
       <hr />
       <WagmiNetworkSwitcher />
       <hr />
@@ -42,7 +58,7 @@ const WagmiBalance = ({ address }: { address: `0x${string}` | undefined }) => {
   if (isLoading) return <div>Fetching balance…</div>;
   if (isError) return <div>Error fetching balance</div>;
   return (
-    <div data-cy='wagmi-balance'>
+    <div data-cy="wagmi-balance">
       <h2>useBalance</h2>
       wagmi balance: {data?.formatted} {data?.symbol}
     </div>
@@ -67,7 +83,7 @@ const WagmiNetworkSwitcher = () => {
           onClick={() => switchNetwork?.(x.id)}
         >
           {x.name}
-          {isLoading && pendingChainId === x.id && ' (switching)'}
+          {isLoading && pendingChainId === x.id && " (switching)"}
         </button>
       ))}
 
